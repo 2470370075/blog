@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+
+</head>
+<body>
+
+<div style="background-color: #4cae4c;height: 50px">
+    <p style="margin-left:20px;font-size: 30px">{{ ret.username}}的主页</p>
+</div>
+
+<div style="height: 30px"></div>
+<div class="container" style="">
+    <div class="row">
+
+    {% load mytags %}
+    {% get_left_block username %}
+
+        <div class="col-md-9">
+            {% for i in article %}
+                <h3 style="color: #46b8da">
+                    <a href="/index/{{ i.user.username }}/{{ i.nid }}">{{ i.title }}</a>
+                </h3>
+                <div class="media">
+                    <div class="media-left">
+                        <a href="{{ i.user.username }}">
+                            <img style="height: 60px;width: 60px" class="media-object" src="/media/{{ i.user.avatar }}" alt="...">
+                        </a>
+
+                    </div>
+                    <div class="media-body">
+                        <h5 class="media-heading">{{ i.abstract }}</h5>
+                    </div>
+                    <div style="height: 10px"></div>
+                    <span>{{ i.user.username }}</span> 发布于 <span>{{ i.user.create_time|date:'Y-m-d H:i:s' }}</span>
+                    &nbsp &nbsp&nbsp<span class="glyphicon glyphicon-comment">评论({{ i.comment }}) &nbsp</span>
+                    <span class="glyphicon glyphicon-thumbs-up">点赞({{ i.up }})&nbsp</span>
+                    <hr>
+                </div>
+
+            {% endfor %}
+
+
+        </div>
+    </div>
+</div>
+
+
+
+<script src="/static/jquery-3.3.1.js"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+</body>
+</html>

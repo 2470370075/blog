@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/mystyle.css">
+    <style>
+
+
+        body {
+            margin: 0;
+            background: url("/static/black.jpg") no-repeat;
+            padding: 0;
+            background-size: 100% 100%
+        }
+
+        .container {
+
+            background-color: white;
+        }
+
+        nav {
+            margin: 0;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div style="background-color: #c7ddef;height: 50px">
+    <p style="margin-left:20px;font-size: 30px;display: inline">{{ ret.username }}的主页</p>
+    <a href="/index" style="float: right">返回主页</a>
+</div>
+
+<div class="container" style="">
+    <div class="row">
+        {% load mytags %}
+
+        {% get_left_block username %}
+
+
+        <div class="col-md-9">
+            <h1>{{ article.title }}</h1>
+            <hr>
+            <p style="font-size: 25px">{{ article.detail|safe }}</p>
+
+            <div id="d2" class="ud down"><p>{{ article.down }}</p></div>
+            <div id="d1" class="ud up"><p>{{ article.up }}</p></div>
+            <div style="height: 60px;"></div>
+            <div style="float: right;margin-right: 15px"><p id="d3" style="color: red"></p></div>
+
+            <p>评论列表：</p>
+            <ul class="list-group">
+                {% for i in comments %}
+                    <li style="margin-left: 20px" class="list-group-item">
+                        <span>#{{ forloop.counter }}楼</span> &nbsp &nbsp
+                        <span>{{ i.createtime|date:'Y-m-d H:m:s' }}</span>&nbsp &nbsp
+                        <span>{{ i.user }}</span>
+                        <span style="float: right">
+                            <a class="reply" username="{{ i.user.username }}" pid="{{ i.nid }}">回复</a>
+                            {% if i.user == request.user %}
+                            <a href="{{ request.path }}/?comment_delete={{ i.nid }}">删除</a>
+                            {% endif %}
+                        </span>
+
+                        {% if i.pid %}
+                            <div class="well">
+                                <span>{{ i.pid.user.username }}:</span>
+                                <p style="margin-left: 10px">{{ i.pid.context }}</p>
+                            </div>
+                        {% endif %}
+
+                        <p style="margin-left: 15px;margin-top: 10px">{{ i.context }}</p>
+                    </li>
+
+                {% endfor %}
+            </ul>
+            <br>
+            <hr>
+        {% if request.user.username %}
+        <p>昵称：<input type="text" disabled="disabled" value="{{ request.user }}"></p>
+            <p>请输入您的评论：</p>
+            <textarea name="" id="con" cols="110" rows="10"></textarea>
+            <button id="sub">提交</button>
+
+        {% else %}
+            <p><a href="/login/">请登录后评论</a></p>
+        {% endif %}
+
+
+
+        </div>
+
+
+    </div>
+</div>
+
+
+<script src="/static/jquery-3.3.1.js"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<div id="div1" user="{{ request.user.username }}"></div>
+
+
+<script>
+
+    var pid = '';
+
+    $('.reply').click(function () {
+
+        $("#con").focus();
+        username = $(this).attr('username');
+        $("#con").val('@' + username + '\n');
+        pid = $(this).attr('pid');
+
+    });
+
+    $('#sub').click(function () {
+        var article ={{ article.nid }};
+        var context = '';
+        if (pid) {
+            var s = $('#con').val();
+            var index = s.indexOf("\n");
+            context = s.slice(index + 1);
+
+        } else {
+            context = $('#con').val();
+        }
+
+        var d = new Date();
+        var date = d.toLocaleString();
+
+
+        $.ajax({
+            type: 'get',
+            url: '/comment',
+            data: {
+                article: article,
+                context: context,
+                pid: pid,
+            },
+            success: function (data) {
+                s = '<li style="margin-left: 20px" class="list-group-item">\n' +
+                    '                       <span>' + date + '</span>&nbsp &nbsp\n' +
+                    '                       <span>{{ i.user }}</span>\n' +
+                    '                       <p style="margin-left: 15px;margin-top: 10px">' + context + '</p>\n' +
+                    '                   </li>';
+
+                $('.list-group').append(s);
+
+                $('#con').val('');
+                pid = ''
+            }
+        })
+    });
+
+
+</script>
+
+
+<script>
+    $('.ud').click(function () {
+
+        var article ={{ article.pk }};
+        var updown = $(this).hasClass('up');
+
+        if ($('#div1').attr('user')) {
+
+            $.ajax({
+                    type: 'get',
+                    url: '/ud',
+
+                    data: {
+                        'article': article,
+                        'updown': updown,
+                    },
+                    success: function (data) {
+                        console.log(data);
+
+                        if (data.state == 0) {
+                            if (updown) {
+                                var up = $('.up').text();
+                                up = parseInt(up) + 1;
+                                $('.up p').text(up)
+                            } else {
+
+                                var down = $('.down').text();
+                                down = parseInt(down) + 1;
+                                $('.down p').text(down)
+                            }
+
+                        } else {
+                            if (data.updown == 1) {
+                                $('#d3').text('您已经推荐过了')
+                            } else {
+                                $('#d3').text('您已经反对过了')
+                            }
+
+                            setTimeout(function () {
+                                $('#d3').text('')
+                            }, 1000)
+                        }
+                    }
+                }
+            )
+
+        } else {
+            $('#d3').text('请您登录')
+        }
+    })
+
+
+</script>
+
+
+</body>
+</html>

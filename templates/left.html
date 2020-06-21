@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="col-md-3">
+    <div class="panel panel-success">
+        <div class="panel-heading">文章分类</div>
+        <div class="panel-body">
+
+            {% for i,v in d.items %}
+                <p>{{ i }}({{ v }})</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="panel panel-success">
+        <div class="panel-heading">标签分类</div>
+        <div class="panel-body">
+            {% for i in ret4 %}
+                <p>{{ i.tag__tagtitle }}({{ i.c }})</p>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="panel panel-success">
+        <div class="panel-heading">时间分类</div>
+        <div class="panel-body">
+            {% for i in time %}
+                <p>{{ i.t }}({{ i.c }})</p>
+
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+<script src="/static/jquery-3.3.1.js"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+</body>
+</html>
